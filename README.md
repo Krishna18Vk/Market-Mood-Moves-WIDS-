@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
  # Market Mood Moves: Sentiment-Driven Stock Prediction
 **WiDS 5.0 Weeks 1-2 Midterm Submission | Ameya Bansal | IIT Bombay DESE**
 
@@ -118,4 +118,3 @@ Week 2 Reading Guide:
 =======
 # Market-Mood-Moves-WIDS-
 "WiDS 5.0 Midterm - Sentiment Stock Prediction Weeks 1-2"
->>>>>>> 7a70c4ac9b41cc3cfb194fea08427a04db45ed6f
