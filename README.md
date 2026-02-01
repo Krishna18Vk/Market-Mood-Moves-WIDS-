@@ -117,4 +117,111 @@ Week 2 Reading Guide:
 ✅ Embeddings evolution ✓
 =======
 # Market-Mood-Moves-WIDS-
-"WiDS 5.0 Midterm - Sentiment Stock Prediction Weeks 1-2"
+
+--
+# 📈 Market Mood & Moves: Sentiment-Driven Stock Prediction
+
+### A Multimodal Deep Learning Framework for Financial Forecasting
+
+**Mentors:** Meet & Sarthak | **Mentee:** [Your Name] | **Project:** WiDS 5.0
+
+---
+
+## 📖 Project Overview
+
+**Market Mood & Moves** is a quantitative finance project that challenges the traditional reliance on purely numerical data for stock prediction. By fusing **unstructured news sentiment** (from FinBERT) with **structured technical indicators**, this project builds a "Multimodal" prediction engine.
+
+The core hypothesis is that **Market Sentiment** acts as a leading indicator for price volatility. The model uses an **Attention-based LSTM** (Long Short-Term Memory) network to learn which days in a 50-day window are most critical for predicting tomorrow's price direction.
+
+## 🚀 Key Features
+
+* **Deep Semantic Analysis:** Uses `ProsusAI/finbert` (a BERT model fine-tuned on financial text) to score news headlines.
+* **Smart Tokenization:** Handles long financial reports using a **Chunking Strategy** to bypass the 512-token BERT limit.
+* **Multimodal Fusion:** Combines Sentiment, RSI, MACD, Volatility, and Volume into a single feature vector.
+* **Attention Mechanism:** A custom neural network layer that learns to "pay attention" to specific high-impact days (e.g., earnings calls) while ignoring noise.
+* **Risk-Managed Strategy:** A "Signal Agreement" trading logic that only executes trades when both the LSTM (Price) and FinBERT (Sentiment) agree on the direction.
+
+---
+
+## 🛠️ Technical Workflow
+
+### 1. Feature Engineering & Preprocessing
+
+The raw data is transformed into a rich feature set:
+
+* **Log Returns:**  are used instead of simple prices for statistical stationarity.
+* **Technical Indicators:**
+* **RSI (Relative Strength Index):** Measures overbought/oversold conditions.
+* **MACD (Moving Average Convergence Divergence):** Captures momentum shifts.
+* **Rolling Volatility:** Standard deviation of returns over a 20-day window.
+
+
+* **Hybrid Scaling:** Returns are **Standardized** (Z-Score), while technical indicators are **Min-Max Scaled** to ensure stable gradients during training.
+
+### 2. The NLP Pipeline (FinBERT)
+
+We process financial news using the `ProsusAI/finbert` model.
+
+* **Token Counting:** We first check for "long" documents that exceed 512 tokens.
+* **Chunking Logic:** Long articles are split into 510-token chunks with overlap.
+* **Inference:** Each chunk is scored independently, and the final sentiment is the average probability of the chunks. This ensures no critical information at the end of a long report is lost.
+
+### 3. The Model Architecture (Attention-LSTM)
+
+The model treats the stock market as a sequence problem.
+
+* **Input:** A sequence of 50 trading days (Batch, 50, 6 Features).
+* **LSTM Layers:** Two stacked LSTM layers capture temporal dependencies.
+* **Attention Layer:** A custom linear layer calculates an "importance weight" () for every day in the sequence.
+* *Intuition:* If Day 45 had a massive news crash, the model assigns it a high weight, ensuring it dominates the final prediction.
+
+
+
+### 4. Trading Strategy (The Decision Engine)
+
+The model outputs a predicted return for . We don't trade blindly on this number. We use a **Confirmation Filter**:
+
+```python
+def get_trade_signal(lstm_prediction, sentiment_score):
+    if lstm_prediction > threshold AND sentiment_score > positive_threshold:
+        return 'BUY'  # High Conviction
+    elif lstm_prediction < -threshold AND sentiment_score < negative_threshold:
+        return 'SELL' # High Conviction
+    else:
+        return 'HOLD' # Disagreement = Risk
+
+```
+
+---
+
+## 📊 Visualizations Included
+
+The code generates several key plots to validate performance:
+
+1. **One-Step-Ahead Forecast:** Compares the model's "Next Day" prediction against the actual closing price.
+2. **Strategy Signal Map:** A price chart overlaid with **Green Triangles (Buy)** and **Red Triangles (Sell)**, showing exactly where the algorithm would have entered the market.
+
+## 📦 Requirements
+
+To run this code, you will need the following libraries:
+
+```txt
+torch
+transformers
+pandas
+numpy
+matplotlib
+scikit-learn
+
+```
+
+## 🏃 How to Run
+
+1. **Prepare Data:** Ensure your dataframe `df` contains `Close`, `Volume`, and `News` columns.
+2. **Run NLP:** Execute the FinBERT cells to generate the `Sentiment Score` column.
+3. **Train:** Run the training loop. The loss should decrease over 100 epochs.
+4. **Visualize:** Use the plotting cells to see the 'Buy/Sell' signals generated on the test set.
+
+---
+
+*Submitted as part of the WiDS 5.0 evaluation.*
